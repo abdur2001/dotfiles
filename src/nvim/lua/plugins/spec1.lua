@@ -1,6 +1,15 @@
 return {
+  -- NOTE: Plugins can be added with a link (or for a fithub repo: `owner/repo` link) 
+  -- or a table with the first arg as the link and the following used for configuring behaviour
+
+  -- "gc" to comment visual regions/lines
+  {
+    'numToStr/Comment.nvim',
+    opts={}
+  },
   -- the colorscheme should be available when starting Neovim
   {
+
     "folke/tokyonight.nvim",
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
