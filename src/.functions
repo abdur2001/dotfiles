@@ -1,0 +1,147 @@
+function sael {
+    local app_name="$1"
+    local log_dir="${2:-$PWD}"
+
+    local filename="${app_name}_$(date '+output_%Y-%m-%d_%H-%M-%S.log')"
+    local filepath="$log_dir/$filename"
+
+    (sae "$1") > "$filepath" 2>&1 &
+    local cmd_pid=$!
+
+    tail -f "$filepath"
+    local tail_pid=$!
+
+    wait $cmd_pid
+    local exit_code=$?
+    kill $tail_pid
+    return "$exit_code"
+}
+complete -o nospace -F add_autocomplete_to_SAE sael
+
+function sapct {
+    sapt "$1"
+    sast "$1"
+}
+
+function lim {
+    if [[ $1 == dse_* ]]; then
+        log_inspect "${1#dse_}" vim
+    else
+        log_inspect "$1" vim
+    fi
+
+}
+function lif {
+    if [[ $1 == dse_* ]]; then
+        log_inspect "${1#dse_}" -f
+    else
+        log_inspect "$1" -f
+    fi
+}
+
+complete -o nospace -F _nomad_jobs_completion lif lim;
+
+JUPYTER_PORT=3369
+run_jupyter() {
+    cd ~/notebooks
+    make develop
+    source env/bin/activate
+    jupyter lab --ip=0.0.0.0 --port=${JUPYTER_PORT} --no-browser
+}
+
+set_nomad() {
+      source /apps/home/$USER/workspace/$1/_tools/de-bash/nomad.sh
+}
+
+get_db_host() {
+        python3 -c """
+from spde import registry
+consul_client = registry.get_registry().consul_client
+print(consul_client.get_db_host('$1'))
+"""
+}
+
+function show_unique_added_lines() {
+  git show "$1" | grep '^\+[^+]' | gsed 's/\+\s*//' | sort -u | less
+}
+
+function remote_dev_files() {
+  current_branch="$(git_current_branch)"
+  origin_name="origin"
+  origin_current_branch="${origin_name}/${current_branch}"
+
+  echo "args: $@"
+  echo "$#"
+
+  if [ $# -eq 0 ]; then
+    origin_cmp_branch="${origin_name}/dev"
+  else
+    origin_cmp_branch="${origin_name}/$1"
+  fi
+
+  {
+    git diff "${origin_current_branch}" $(git merge-base "${origin_current_branch}" "${origin_cmp_branch}") --name-only --relative \
+    && git diff $(git merge-base "${current_branch}" "${origin_cmp_branch}") --name-only --relative ;
+  } | sort -u | xargs
+}
+
+function drf() {
+  git diff origin/$(git_current_branch) -- $(remote_dev_files "$@")
+}
+
+
+# See https://hastebin.sqpc.sqrpnt.com/about
+haste () {
+   BASE_URL=https://hastebin.sqpc.sqrpnt.com
+   UPLOAD_URL=${BASE_URL}/documents
+
+   RESPONSE=$(curl -s -f --data-binary @- $UPLOAD_URL < "${1:-/dev/stdin}")
+   if which jq >/dev/null 2>&1
+   then
+      KEY=$(echo $RESPONSE | jq -r .key)
+   else
+      KEY=$(echo $RESPONSE | cut -d ':' -f 2 | tr -d '"}')
+   fi
+   echo ${BASE_URL}/${KEY}
+}
+
+function act {
+  for env_dir in env .venv; do
+    if [ -f "${env_dir}/bin/activate" ]; then
+      source "${env_dir}/bin/activate";
+      >&2 echo "Sourced '${env_dir}/bin/activate'";
+      return 0;
+    fi;
+  done;
+  >&2 echo "Failed to find any virtualenv to source!";
+  return 1;
+}
+
+
+sa () {
+  DEV_PACKAGES=("ipython" "ipdb" "sp_neopyter" "pyzmq<=26.4.0")
+  REQUIREMENTS_DEV="requirements-dev.txt"
+  cd /apps/home/$USER/workspace/spde-apps/$1
+
+  if [ -n "$1" ]; then
+    # add dev requirements if not already present
+    for pkg in "${DEV_PACKAGES[@]}"; do
+      if ! grep -Eiq "^${pkg}([[:space:]]*|[=<>!~\[])" "${REQUIREMENTS_DEV}"; then
+        # add new line at eof if not present
+	if [ -s "${REQUIREMENTS_DEV}" ] && [ "$(tail -c1 "${REQUIREMENTS_DEV}")" != "" ]; then
+	  echo >> "${REQUIREMENTS_DEV}"
+	fi
+        echo "Adding ${pkg}"
+        echo "$pkg" >> "${REQUIREMENTS_DEV}"
+      fi
+    done
+
+    make develop
+    act
+  fi
+}
+sar () {
+  cd /apps/home/$USER/workspace/spde-apps/$1
+}
+
+complete -o nospace -C 'find "${SPDE_APPS}" -maxdepth 1 -type d -name "${COMP_WORDS[COMP_CWORD]}*" -printf "%f "' sa sar

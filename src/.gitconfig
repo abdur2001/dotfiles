@@ -1,0 +1,47 @@
+[user]
+	name = Abdur Rahim Sharif
+	email = "abdur.sharif@squarepoint-capital.com"
+[core]
+	pager = delta
+	editor = nvim
+	autocrlf = input
+[credential]
+	helper = store
+[commit]
+	verbose = true
+[interactive]
+	diffFilter = delta --color-only
+[color]
+	ui = auto
+[init]
+	defaultBranch = main
+[diff]
+	colormovedws = allow-indentation-change
+	colormoved = default
+	submodule = log
+[difftool]
+	prompt = false
+[merge]
+	tool = diffconflicts
+[mergetool]
+	keepBackup = false
+[mergetool "diffconflicts"]
+	cmd = nvim -c DiffConflictsWithHistory \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
+	trustExitCode = true
+[delta]
+	features = gruvmax-fang
+	side-by-side = true
+	navigate = true
+	dark = true
+	line-numbers = true
+[rebase]
+	updateRefs = true
+	autosquash = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[submodule]
+	recurse = true
+	fetchJobs = 0

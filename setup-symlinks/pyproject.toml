@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.poetry]
+authors = ["Alexander Kuhn-Regnier <akhunregnier@landytech.com>"]
+description = ""
+name = "setup-symlinks"
+readme = "README.md"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+beartype = "^0.18.2"
+click = "^8.1.7"
+pydantic = "^2.6.4"
+python = "^3.12"
+pyyaml = "^6.0.1"
+
+[tool.poetry.scripts]
+setup_symlinks = "setup_symlinks.cli:cli"
+
+[[tool.poetry.source]]
+name = "nprod-pypi"
+url = "https://artifactory-mirror.sqpc.sqrpnt.com/artifactory/api/pypi/nprod-pypi/simple"
+priority = "primary"
+

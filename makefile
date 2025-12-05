@@ -1,38 +1,114 @@
-REPO_URL = https://github.com/neovim/neovim.git
-REPO_DIR = neovim
-DEPS = ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+.PHONY: install zsh _links links oh-my-zsh spde-apps nvim delta fzf just stylua
 
-$(REPO_DIR):
-	@git clone $(REPO_URL)
+SHELL := /bin/bash
 
-lua:
-	@wget https://www.lua.org/ftp/lua-5.4.8.tar.gz
-	@tar zxpf lua-5.4.8.tar.gz
-	@cd lua-5.4.8 && make all test && sudo make install
-	@rm lua-5.4.8 -rf
-	
-lua_rocks: lua
-	@wget https://luarocks.org/releases/luarocks-3.12.2.tar.gz
-	@tar zxpf luarocks-3.12.2.tar.gz
-	@cd luarocks-3.12.2 && ./configure && make && sudo make install
-	@rm luarocks-3.12.2 -rf
+just:
+	set -euo pipefail; \
+	if [ ! -f "$${HOME}/bin/just" ]; then \
+	  tmpdir="$$(mktemp -d)"; \
+	  cd "$${tmpdir}"; \
+	  wget https://github.com/casey/just/releases/download/1.39.0/just-1.39.0-x86_64-unknown-linux-musl.tar.gz; \
+	  tar xzvf just-1.39.0-x86_64-unknown-linux-musl.tar.gz; \
+	  mv "just" "$${HOME}/bin/just"; \
+	  rm -rf "$${tmpdir}"; \
+	fi
 
-install_deps:
-	@echo "Installing system dependencies..."
-	@sudo apt update
-	@sudo apt install -y $(DEPS)
+nvim:
+	set -euo pipefail; \
+	if [ ! -f "$${HOME}/bin/nvim" ]; then \
+	  tmpdir="$$(mktemp -d)"; \
+	  cd "$${tmpdir}"; \
+	  wget https://github.com/neovim/neovim-releases/releases/download/v0.11.1/nvim-linux-x86_64.appimage; \
+	  chmod +x nvim-linux-x86_64.appimage; \
+	  mv "nvim-linux-x86_64.appimage" "$${HOME}/bin/nvim"; \
+	  rm -rf "$${tmpdir}"; \
+	fi
 
-build: $(REPO_DIR)
-	@echo "Building Neovim from source..."
-	@cd $(REPO_DIR) && git checkout stable && make CMAKE_BUILD_TYPE=RelWithDebInfo
+delta:
+	set -euo pipefail; \
+	if [ ! -f "$${HOME}/bin/delta" ]; then \
+	  tmpdir="$$(mktemp -d)"; \
+	  cd "$${tmpdir}"; \
+	  wget https://github.com/dandavison/delta/releases/download/0.18.2/delta-0.18.2-x86_64-unknown-linux-musl.tar.gz; \
+	  tar xzvf delta-0.18.2-x86_64-unknown-linux-musl.tar.gz; \
+	  mv "./delta-0.18.2-x86_64-unknown-linux-musl/delta" "$${HOME}/bin/delta"; \
+	  rm -rf "$${tmpdir}"; \
+	fi
 
-install: build
-	@echo "Installing Neovim to $(INSTALL_DIR)..."
-	@cd $(REPO_DIR) && sudo make install
+fzf:
+	set -euo pipefail; \
+	if [ ! -f "$${HOME}/bin/fzf" ]; then \
+	  tmpdir="$$(mktemp -d)"; \
+	  cd "$${tmpdir}"; \
+	  wget https://github.com/junegunn/fzf/releases/download/v0.59.0/fzf-0.59.0-linux_amd64.tar.gz; \
+	  tar xzvf fzf-0.59.0-linux_amd64.tar.gz; \
+	  mv fzf "$${HOME}/bin/fzf"; \
+	  rm -rf "$${tmpdir}"; \
+	fi
 
-nvim: lua lua_rocks install_deps $(REPO_DIR) build install
+zsh:
+	set -euo pipefail; \
+	if [ ! -f "$${HOME}/bin/zsh/bin/zsh" ]; then \
+	  tmpdir="$$(mktemp -d)"; \
+	  cd "$${tmpdir}"; \
+	  git clone --depth=1 https://github.com/zsh-users/zsh.git; \
+	  cd zsh; \
+	  ./Util/preconfig; \
+	  mkdir "$${HOME}/bin/zsh"; \
+	  ./configure --prefix="$${HOME}/bin/zsh"; \
+	  make install; \
+	  rm -rf "$${tmpdir}"; \
+	fi
 
-clean:
-	@echo "Cleaning up build files..."
-	@cd $(REPO_DIR) && make clean
-	@rm neovim -rf
+oh-my-zsh:
+	set -euo pipefail; \
+	if [ -d "$${HOME}/.oh-my-zsh" ]; then \
+	  echo "oh-my-zsh appears to already be installed! Remove the directory if safe to do so and this is not the case."; \
+	else \
+	  sh -c "$$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"; \
+	fi
+
+spde-apps:
+	set -euo pipefail; \
+	if [ ! -d "/apps/home/${USER}/workspace" ]; then \
+	  mkdir -p "/apps/home/${USER}/workspace"; \
+	  cd "/apps/home/${USER}/workspace"; \
+	  git clone ssh://git@gitlab.sqpc.sqrpnt.com:2222/data/alpha-data/spde-apps.git; \
+	fi
+
+stylua:
+	set -euo pipefail; \
+	if [ ! -d "$${HOME}/bin/stylua" ]; then \
+	  if [ ! -d "/apps/home/$${USER}/tmp" ]; then \
+	    mkdir "/apps/home/$${USER}/tmp"; \
+	  fi; \
+	  cd "/apps/home/$${USER}/tmp"; \
+	  wget https://github.com/JohnnyMorganz/StyLua/releases/download/v2.1.0/stylua-linux-x86_64-musl.zip; \
+	  unzip stylua-linux-x86_64-musl.zip; \
+	  mv stylua "$${HOME}/bin/"; \
+	fi
+
+# Install prerequisites.
+install: zsh oh-my-zsh spde-apps nvim delta fzf just stylua
+	set -euo pipefail; \
+	export PATH="$${HOME}"/.local/bin:"$${PATH}"; \
+	if poetry --version; then \
+	  echo "poetry installed"; \
+	else \
+	  echo "installing poetry..."; \
+	  /opt/third/python/3.12/root/bin/pip3 install poetry; \
+	fi; \
+	cd ./setup-symlinks; \
+	poetry env use /opt/third/python/3.12/root/bin/python; \
+	poetry install;
+
+# Install symlinks (no prerequisites).
+_links:
+	set -euo pipefail; \
+	cd ./setup-symlinks; \
+	export PATH="$${HOME}"/.local/bin:"$${PATH}"; \
+	poetry run setup_symlinks --src-dir ../src --config config/links.yaml; \
+	chmod 600 "$${HOME}/.config/spde/context.yaml";
+
+# Install symlinks.
+links: install

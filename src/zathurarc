@@ -1,0 +1,14 @@
+# B/W settings
+# set recolor-darkcolor "#000000"
+# set recolor-lightcolor "#FFFFFF"
+
+# Dark mode
+set recolor-darkcolor "#dcdccc"
+set recolor-lightcolor "#1f1f1f"
+
+set recolor-keephue "false"
+
+set guioptions ""  # Default value is "s", displaying the statusbar.
+
+# if this is executed (or using <C-r>), the pdf will be turned into B/W or 'dark mode' depending on the above
+# set recolor "true"

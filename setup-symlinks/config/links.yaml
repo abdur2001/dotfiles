@@ -1,0 +1,35 @@
+home:
+  - .aliases
+  - .functions
+  - .bash_profile
+  - .condarc
+  - .gitconfig
+  - .p10k.zsh
+  - .profile
+  - .tmux.conf
+  - .zprofile
+  - .zshrc
+  - justfile
+  - .bashrc
+  - .npmrc
+  - .tool-versions
+  - .git_template
+  - .aider.conf.yml
+home_bin:
+  - pycollage
+  - log_mirror
+  - log_mirror_single_host
+  - delete_source.py
+  - delete_tables.py
+links:
+  - src: ssh_config
+    tgt: ~/.ssh/config
+    chmod: 600
+  - src: zathurarc
+    tgt: ~/.config/zathura/zathurarc
+  - src: nvim
+    tgt: ~/.config/nvim
+  - src: spde
+    tgt: ~/.config/spde
+  - src: ipython_startup/0startup.py
+    tgt: ~/.ipython/profile_default/startup/0startup.py

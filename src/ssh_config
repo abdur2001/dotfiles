@@ -1,0 +1,12 @@
+Host *
+    ForwardAgent yes
+    ServerAliveInterval 30
+
+Host github.com
+    Port 443
+    HostName ssh.github.com
+    User git
+
+Host gist.github.com
+    Port 443
+    HostName ssh.github.com

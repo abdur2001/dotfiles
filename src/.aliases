@@ -1,0 +1,54 @@
+alias gs='git status'
+
+alias pytest-pdb='pytest -vv -rs --pdb --pdbcls=IPython.terminal.debugger:Pdb'
+alias pytest-output='pytest --no-cov -p no:warnings -s'
+
+alias tmux='/opt/third/tmux/3.3/bin/tmux'
+
+alias pytest-pdb='pytest -vv -rs --pdb --pdbcls=IPython.terminal.debugger:Pdb'
+alias pytest-output='pytest --no-cov -p no:warnings -s'
+
+alias ..='cd ..'
+alias ah="cd $APPS_HOME"
+alias up="cd $APPS_HOME/workspace/us-power"
+
+alias sal="spde app list"
+alias sng="spde nomad generate"
+
+# spde assets
+alias sapbr="spde assets publish repository"
+alias sapbs="spde assets publish sqpc"
+alias sapbt="spde assets publish timeseries"
+alias sasr="spde assets sync repository"
+alias sass="spde assets sync sqpc"
+alias sast="spde assets sync timeseries"
+alias sact="spde assets clean timeseries"
+alias sapgp="spde assets purge repository"
+alias sapgs="spde assets purge sqpc"
+alias sapgt="spde assets purge timeseries"
+
+alias authz="/opt/sp/authz/bin/authz-cli"
+alias bv="bump_version;git add version.txt"
+alias li="log_inspect"
+
+# e.g. cat example.yaml | yaml2json | less
+alias yaml2json="python3 -c 'import json, yaml, sys; print(json.dumps(yaml.load(sys.stdin.read(), yaml.Loader), indent=4))' | python3 -m json.tool"
+alias json2yaml="python3 -c 'import sys, json, yaml; print(yaml.dump(json.loads(sys.stdin.read())))' | python3 -m json.tool"
+alias tss_create="python3 ~/tools/tss_tools.py"
+
+alias authz_perms="authz resources list -n tseries --limit 100"
+alias authz_add_user="authz resources adduser -n tseries"
+alias authz_add_group="authz resources addgroup -n tseries"
+alias authz_test="authz test -n tseries"
+
+# alias tables_with_float_types="grep "type:\s*float" --include "*.yaml" --exclude-dir _decommissioned/ .. -r -l | awk -F'/' '{dir=$0; sub("/[^/]*$", "", dir); files[dir] = files[dir] $0 "\n";} END {for (d in files) {print d ":\n" files[d] "\n"}}'"
+# alias sources_with_float_types="grep "type:\s*float" --include "*.yaml" --exclude-dir _decommissioned/ .. -r -l | awk -F'/' '{dir=$0; sub("/[^/]*$", "", dir); files[dir] = files[dir] $0 "\n";} END {for (d in files) {print d ":\n" files[d] "\n"}}' | grep "^.*:$""
+
+alias q='/opt/sp/qlib/4.0.0.x86_64/q' # Latest
+alias qu='/opt/sp/qlib/4.0.0u.x86_64/q' # Latest
+
+alias usnomad='export NOMAD_ADDR="http://nyzls1517i:5646"; export NOMAD_URL="http://nyzls1517i:5646"; export NOMAD_TOKEN="25e9b8d9-7a77-a6b5-0556-45f604da5664";'
+alias defaultnomad='export NOMAD_ADDR="http://nyzls1517i:4646"; export NOMAD_URL="http://nyzls1517i:4646"; export NOMAD_TOKEN="b51bf419-3a74-9888-1778-72fafadc39e3";'
+
+alias usgitlab='export GITLAB_TRIGGER_TOKEN="glptt-850a23281289eecdbd491104d26fb04939ef6d1a"; export GITLAB_PROJECT_ID=4918;'
+alias defaultgitlab='export GITLAB_TRIGGER_TOKEN="glptt-8ca5e6576015d822075dbb0ac0746780069eb0f8"; export GITLAB_PROJECT_ID=6394;'

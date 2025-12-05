@@ -1,0 +1,16 @@
+
+# Ignore everything in ".ipython" directory except for the "profile_default" directory.
+.ipython/*
+!.ipython/profile_default/
+
+# Ignore everything in the "profile_default" directory, except for the "startup" directory.
+.ipython/profile_default/*
+!.ipython/profile_default/startup/
+!.ipython/profile_default/ipython_config.py
+
+.jupyter/lab/workspaces/*
+
+.python-version
+
+__pycache__
+.aider*

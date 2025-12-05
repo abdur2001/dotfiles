@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import os
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from tqdm import tqdm
+from math import ceil
+from pathlib import Path
+from subprocess import Popen
+
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def main(pattern, res=700, hsize=None, vsize=2.5, col=None, row=None):
+    """
+
+    Args:
+        res (int): Vertical pixels per image.
+        hsize (float): Horizontal size per image in inches.
+        vsize (float): Vertical size per image in inches.
+
+    """
+    dpi = res / vsize
+
+    files = list(Path(".").glob(pattern))
+
+    if not len(files):
+        raise ValueError(f"No files found for pattern '{pattern}'.")
+
+    files = sorted(files, key=str)
+
+    parts_list = [p.parts for p in files]
+
+    common_fname = ""
+
+    if len(parts_list) > 1:
+        while all(parts[0] == parts_list[0][0] for parts in parts_list):
+            # Trim parts lists until there is a difference.
+            parts_list = [parts[1:] for parts in parts_list]
+
+        if all(parts[-1] == parts_list[0][-1] for parts in parts_list):
+            common_fname = parts_list[0][-1]
+            parts_list = [parts[:-1] for parts in parts_list]
+
+    nplots = len(files)
+
+    if col is None and row is None:
+        row = ceil(nplots**0.5)
+        col = ceil(nplots / row)
+    elif row is None:
+        # col is given, but row is not given.
+        row = ceil(nplots / col)
+    elif col is None:
+        # row is given, but col is not given.
+        col = ceil(nplots / row)
+
+    if hsize is None:
+        # Use image aspect ratio to determine size proportions.
+        data = mpimg.imread(files[0])
+        hsize = vsize * data.shape[1] / data.shape[0]
+
+    single_size = np.array([hsize, vsize])  # Width, height
+
+    fig, axes = plt.subplots(
+        row, col, figsize=single_size * np.array([col, row]), squeeze=False
+    )
+
+    for ax in axes.flatten():
+        ax.axis("off")
+
+    def image_data_iter(image_data=data):
+        yield image_data  # Yield pre-loaded data to save some time.
+        plot_files = files[1:].copy()
+        while plot_files:
+            yield mpimg.imread(plot_files.pop(0))  # Yield new data.
+
+    for data, parts, ax in tqdm(
+        zip(image_data_iter(), parts_list, axes.flatten()),
+        desc="Loading images",
+        total=nplots,
+    ):
+        step = ceil(data.shape[0] / res)
+        data = data[::step, ::step]
+        ax.imshow(data)
+        ax.set_title(
+            "/".join(parts),
+            bbox=dict(facecolor="0.1", edgecolor="0.9", pad=2.0, alpha=0.1),
+        )
+
+    if common_fname:
+        fig.suptitle(
+            common_fname,
+            bbox=dict(facecolor="none", edgecolor="0.9", pad=4.0, alpha=0.8),
+        )
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
+    else:
+        fig.tight_layout()
+
+    collage_dir = Path("/tmp/collages")
+
+    if not collage_dir.is_dir():
+        collage_dir.mkdir()
+    else:
+        while len(list(collage_dir.glob("*"))) > 20:
+            os.remove(os.path.abspath(min(collage_dir.glob("*"), key=os.path.getctime)))
+
+    savename = collage_dir / f"{os.getpid()}_collage.png"
+
+    fig.savefig(savename, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+
+    assert Path(savename).is_file()
+
+    Popen(["open", savename])
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser(
+        description="Create image collage",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("pattern", help="file matching pattern")
+    parser.add_argument(
+        "--res", type=int, help="vertical per-image resolution", default=1000
+    )
+    parser.add_argument(
+        "--vsize", type=float, help="vertical per-image width (inches)", default=2.5
+    )
+    parser.add_argument(
+        "--hsize",
+        type=float,
+        help="horizontal per-image height (inches) - automatically calculated from 'vsize' and first plotted image dimensions if not given",
+    )
+    parser.add_argument("--col", type=int, help="number of columns")
+    parser.add_argument("--row", type=int, help="number of rows")
+
+    args = parser.parse_args()
+    main(**dict(args._get_kwargs()))
