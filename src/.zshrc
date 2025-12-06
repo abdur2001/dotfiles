@@ -38,7 +38,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
@@ -118,25 +118,6 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-
-if [ -f ${HOME}/.asdf/sdf.sh ]; then
-  . ${APPS_HOME}/.asdf/asdf.sh
-fi
-
-export PATH="/usr/local/opt/llvm/bin:$PATH"
-export LDFLAGS="-L/usr/local/opt/llvm/lib"
-export CPPFLAGS="-I/usr/local/opt/llvm/include"
-
-export PATH="${HOME}/.cargo/bin:${PATH}"
-
-# pnpm
-export PNPM_HOME="/Users/alexander/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
 function show_unique_added_lines() {
   git show "$1" | grep '^\+[^+]' | gsed 's/\+\s*//' | sort -u | less
 }
@@ -206,15 +187,3 @@ bindkey "^Z" Resume
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
-export ZMQ_PREFIX=bundled
-
-script-cmd() {
-  if [[ "$#" != 2 ]]; then
-    echo "Usage: script-cmd <cmd> <file>";
-    return 1;
-  fi
-
-  local cmd=$1;
-  local filepath=$2;
-  script-env "${filepath}" -- "${cmd}" "${filepath}"
-}
