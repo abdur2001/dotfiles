@@ -85,7 +85,7 @@ fi
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git pyenv colored-man-pages colorize pip brew git-auto-fetch docker pylint z docker-compose asdf zsh-autosuggestions)
+plugins=(git pyenv colored-man-pages colorize pip git-auto-fetch docker pylint z docker-compose asdf zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
