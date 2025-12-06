@@ -1,5 +1,5 @@
-export spde_apps_tools_dir="/apps/home/${USER}/workspace/spde-apps/_tools"
-export PATH="/lxhome/${USER}/.local/bin:${HOME}/bin:${spde_apps_tools_dir}/de-bash:$PATH"
+export JAVA_HOME=/snap/openjdk/current
+export PATH=$PATH:$JAVA_HOME/bin/
 
 if [[ $- == *i* ]]; then
     if [ -f "${HOME}/.bashrc" ]; then

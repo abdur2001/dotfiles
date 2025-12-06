@@ -141,9 +141,6 @@ vim.opt.timeoutlen = 300
 -- Prevent <esc>j from triggering <alt>j which then moves lines/selections
 -- around.
 -- BUT disable this because it messes with pasting external content into neovim.
--- Link to reproduce this issue (try pasting this into neovim, it would trigger
--- the error):
--- https://catalog-api.sqpc.sqrpnt.com/api/v1/connections/http/plattsconnect.spglobal.com
 -- vim.opt.ttimeoutlen = 0
 
 -- Configure how new splits should be opened
@@ -298,26 +295,6 @@ require('lazy').setup(
   ---@module "lazy"
   ---@type LazyPluginSpec
   {
-    {
-      'CaetanoGenete/python-tools.nvim',
-      keys = {
-        {
-          '<leader>le',
-          function()
-            require('python_tools.pickers').find_entry_points(vim.tbl_extend('force', find_entry_points_settings, { group = 'spde.apps' }))
-          end,
-          desc = 'Find spde apps',
-        },
-        {
-          '<leader>lE',
-          function()
-            require('python_tools.pickers').find_entry_points(find_entry_points_settings)
-          end,
-          desc = 'Find python entry-points',
-        },
-      },
-      submodules = false,
-    },
     {
       'nmac427/guess-indent.nvim',
       event = 'BufEnter',

@@ -123,8 +123,6 @@ if [ -f ${HOME}/.asdf/sdf.sh ]; then
   . ${APPS_HOME}/.asdf/asdf.sh
 fi
 
-# Update session title to spde project
-precmd() { ($HOME/session_title.sh &) }
 export PATH="/usr/local/opt/llvm/bin:$PATH"
 export LDFLAGS="-L/usr/local/opt/llvm/lib"
 export CPPFLAGS="-I/usr/local/opt/llvm/include"
@@ -178,35 +176,14 @@ function drfb() {
 }
 
 
-defaultnomad
-
-
 setopt BASH_REMATCH
 setopt KSH_ARRAYS
 
 for file in \
-  "/opt/rh/rh-python36/enable" \
-  "/opt/rh/rh-python38/enable" \
-  "/opt/rh/devtoolset-9/enable" \
-  "/opt/third/gcc/14.2.0/enable" \
-  "/opt/rh/rh-postgresql95/enable" \
-  "/opt/third/python/3.10/enable" \
-  "/opt/third/python/3.12/enable" \
-  "${spde_apps_tools_dir}/init-env.sh" \
-  "${spde_apps_tools_dir}/de-bash/cloud.sh" \
-  "${spde_apps_tools_dir}/de-bash/common.sh" \
-  "${spde_apps_tools_dir}/de-bash/gitlab.sh" \
-  "${spde_apps_tools_dir}/de-bash/nomad.sh" \
-  "${spde_apps_tools_dir}/de-bash/psql.sh" \
-  "${spde_apps_tools_dir}/de-bash/verify.sh" \
-  "${spde_apps_tools_dir}/de-bash/work.sh" \
-  "${spde_apps_tools_dir}/de-bash/k.sh" \
-  "${spde_apps_tools_dir}/statenode-cli/statenode.sh" \
-  "/lxhome/${USER}/.aliases" \
-  "/lxhome/${USER}/.functions" \
+  "${HOME}/.aliases" \
+  "${HOME}/.functions" \
 ; do
   if [ -f "${file}" ]; then
-    echo "Sourcing ${file}";
     source "${file}";
   else
     echo "${file} could not be found, skipping!";
@@ -215,8 +192,6 @@ done
 
 unsetopt BASH_REMATCH
 unsetopt KSH_ARRAYS
-
-export PATH="/opt/third/tmux/3.3/bin:$PATH"
 
 # See https://www.reddit.com/r/vim/comments/9bm3x0/ctrlz_binding/?rdt=44691
 # Allow Ctrl-z to toggle between suspend and resume
@@ -232,49 +207,6 @@ bindkey "^Z" Resume
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 export ZMQ_PREFIX=bundled
-
-function act {
-  for env_dir in env .venv; do
-    if [ -f "${env_dir}/bin/activate" ]; then
-      source "${env_dir}/bin/activate";
-      >&2 echo "Sourced '${env_dir}/bin/activate'";
-      return 0;
-    fi;
-  done;
-  >&2 echo "Failed to find any virtualenv to source!";
-  return 1;
-}
-
-change_title() {
-  local base_dirs base_dir relpath app_name title
-
-  base_dirs=(
-    "/apps/home/${USER}/workspace/spde-apps"
-    "/apps/home/${USER}/workspace/us-power"
-  )
-
-  title='';
-  for base_dir in "${base_dirs[@]}"; do
-    if [[ $PWD == "${base_dir}"* ]]; then
-      relpath=${PWD#${base_dir}*/};
-      app_name=${relpath%%/*};
-      title=${app_name:u};
-      break
-    fi
-  done
-
-  if [ -z "${title}" ]; then
-    title="Devbox";
-  fi
-
-  printf "\033]0;${title} - $(hostname)\007"
-}
-
-precmd() {
-  ( change_title & )
-}
-
-export GIT_CEILING_DIRECTORIES="/sqpc/scratch/dse"
 
 script-cmd() {
   if [[ "$#" != 2 ]]; then
